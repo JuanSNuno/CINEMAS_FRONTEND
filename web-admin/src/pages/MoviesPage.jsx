@@ -10,8 +10,11 @@ const MoviesPage = () => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({ message: '', type: '', show: false });
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ titulo: '' });
+  const [formData, setFormData] = useState({ titulo: '', sinopsis: '', genero: '', duracion_minutos: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [editingMovie, setEditingMovie] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [movieToDelete, setMovieToDelete] = useState(null);
 
   // Función para mostrar notificaciones (Principio DRY)
   const showNotification = (message, type = 'info') => {
@@ -51,17 +54,73 @@ const MoviesPage = () => {
 
     setSubmitting(true);
     try {
-      const response = await peliculaService.create(formData);
-      setPeliculas(prev => [...prev, response.data]);
-      setFormData({ titulo: '' });
-      setShowForm(false);
-      showNotification(`Película "${response.data.titulo}" creada exitosamente`, 'success');
+      if (editingMovie) {
+        // Actualizar película existente
+        const response = await peliculaService.update(editingMovie.id, formData);
+        setPeliculas(prev => prev.map(movie => 
+          movie.id === editingMovie.id ? response.data : movie
+        ));
+        showNotification(`Película "${response.data.titulo}" actualizada exitosamente`, 'success');
+        setEditingMovie(null);
+      } else {
+        // Crear nueva película
+        const response = await peliculaService.create(formData);
+        setPeliculas(prev => [...prev, response.data]);
+        showNotification(`Película "${response.data.titulo}" creada exitosamente`, 'success');
+      }
+      
+      resetForm();
     } catch (error) {
-      console.error('Error al crear película:', error);
-      showNotification('Error al crear la película', 'error');
+      console.error('Error al guardar película:', error);
+      showNotification(`Error al ${editingMovie ? 'actualizar' : 'crear'} la película`, 'error');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({ titulo: '', sinopsis: '', genero: '', duracion_minutos: '' });
+    setShowForm(false);
+    setEditingMovie(null);
+  };
+
+  const handleEdit = (movie) => {
+    setEditingMovie(movie);
+    setFormData({
+      titulo: movie.titulo || '',
+      sinopsis: movie.sinopsis || '',
+      genero: movie.genero || '',
+      duracion_minutos: movie.duracion_minutos || ''
+    });
+    setShowForm(true);
+  };
+
+  const handleDeleteClick = (movie) => {
+    setMovieToDelete(movie);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!movieToDelete) return;
+
+    setSubmitting(true);
+    try {
+      await peliculaService.delete(movieToDelete.id);
+      setPeliculas(prev => prev.filter(movie => movie.id !== movieToDelete.id));
+      showNotification(`Película "${movieToDelete.titulo}" eliminada exitosamente`, 'success');
+      setShowDeleteConfirm(false);
+      setMovieToDelete(null);
+    } catch (error) {
+      console.error('Error al eliminar película:', error);
+      showNotification('Error al eliminar la película', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setMovieToDelete(null);
   };
 
   const handleChange = (e) => {
@@ -110,10 +169,10 @@ const MoviesPage = () => {
         {showForm && (
           <section className="form-section">
             <div className="form-container">
-              <h2>➕ Nueva Película</h2>
+              <h2>{editingMovie ? '✏️ Editar Película' : '➕ Nueva Película'}</h2>
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label htmlFor="titulo">Título de la Película:</label>
+                  <label htmlFor="titulo">Título de la Película *:</label>
                   <input
                     type="text"
                     id="titulo"
@@ -125,18 +184,72 @@ const MoviesPage = () => {
                     disabled={submitting}
                   />
                 </div>
+                
+                <div className="form-group">
+                  <label htmlFor="sinopsis">Sinopsis:</label>
+                  <textarea
+                    id="sinopsis"
+                    name="sinopsis"
+                    value={formData.sinopsis}
+                    onChange={handleChange}
+                    placeholder="Descripción de la película..."
+                    rows="4"
+                    disabled={submitting}
+                  />
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="genero">Género:</label>
+                    <select
+                      id="genero"
+                      name="genero"
+                      value={formData.genero}
+                      onChange={handleChange}
+                      disabled={submitting}
+                    >
+                      <option value="">Seleccionar género</option>
+                      <option value="Acción">Acción</option>
+                      <option value="Comedia">Comedia</option>
+                      <option value="Drama">Drama</option>
+                      <option value="Terror">Terror</option>
+                      <option value="Ciencia Ficción">Ciencia Ficción</option>
+                      <option value="Romance">Romance</option>
+                      <option value="Aventura">Aventura</option>
+                      <option value="Animación">Animación</option>
+                      <option value="Documental">Documental</option>
+                      <option value="Thriller">Thriller</option>
+                    </select>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="duracion_minutos">Duración (minutos):</label>
+                    <input
+                      type="number"
+                      id="duracion_minutos"
+                      name="duracion_minutos"
+                      value={formData.duracion_minutos}
+                      onChange={handleChange}
+                      placeholder="120"
+                      min="1"
+                      max="300"
+                      disabled={submitting}
+                    />
+                  </div>
+                </div>
+                
                 <div className="form-actions">
                   <button 
                     type="submit" 
                     className="btn-primary"
                     disabled={submitting}
                   >
-                    {submitting ? '⏳ Creando...' : '💾 Crear Película'}
+                    {submitting ? '⏳ Guardando...' : (editingMovie ? '💾 Actualizar Película' : '💾 Crear Película')}
                   </button>
                   <button 
                     type="button" 
                     className="btn-secondary"
-                    onClick={() => setShowForm(false)}
+                    onClick={resetForm}
                     disabled={submitting}
                   >
                     Cancelar
@@ -177,11 +290,45 @@ const MoviesPage = () => {
                     <h3>{pelicula.titulo}</h3>
                     <span className="movie-id">ID: {pelicula.id}</span>
                   </div>
+                  
+                  <div className="movie-details">
+                    {pelicula.genero && (
+                      <div className="movie-detail">
+                        <span className="detail-label">🎭 Género:</span>
+                        <span className="detail-value">{pelicula.genero}</span>
+                      </div>
+                    )}
+                    
+                    {pelicula.duracion_minutos && (
+                      <div className="movie-detail">
+                        <span className="detail-label">⏱️ Duración:</span>
+                        <span className="detail-value">{pelicula.duracion_minutos} min</span>
+                      </div>
+                    )}
+                    
+                    {pelicula.sinopsis && (
+                      <div className="movie-detail synopsis">
+                        <span className="detail-label">📝 Sinopsis:</span>
+                        <p className="detail-value">{pelicula.sinopsis}</p>
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="movie-actions">
-                    <button className="btn-edit" title="Editar película">
+                    <button 
+                      className="btn-edit" 
+                      title="Editar película"
+                      onClick={() => handleEdit(pelicula)}
+                      disabled={submitting}
+                    >
                       ✏️ Editar
                     </button>
-                    <button className="btn-delete" title="Eliminar película">
+                    <button 
+                      className="btn-delete" 
+                      title="Eliminar película"
+                      onClick={() => handleDeleteClick(pelicula)}
+                      disabled={submitting}
+                    >
                       🗑️ Eliminar
                     </button>
                   </div>
@@ -191,6 +338,42 @@ const MoviesPage = () => {
           )}
         </section>
       </main>
+
+      {/* Modal de confirmación para eliminar */}
+      {showDeleteConfirm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>⚠️ Confirmar Eliminación</h3>
+            </div>
+            <div className="modal-body">
+              <p>¿Estás seguro de que deseas eliminar la película?</p>
+              <div className="movie-to-delete">
+                <strong>"{movieToDelete?.titulo}"</strong>
+              </div>
+              <p className="warning-text">
+                Esta acción no se puede deshacer.
+              </p>
+            </div>
+            <div className="modal-actions">
+              <button 
+                className="btn-danger"
+                onClick={confirmDelete}
+                disabled={submitting}
+              >
+                {submitting ? '⏳ Eliminando...' : '🗑️ Eliminar'}
+              </button>
+              <button 
+                className="btn-secondary"
+                onClick={cancelDelete}
+                disabled={submitting}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

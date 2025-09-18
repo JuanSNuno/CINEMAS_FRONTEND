@@ -39,7 +39,15 @@ const UserForm = ({ onUserRegistered, showNotification }) => {
 
     setLoading(true);
     try {
-      const response = await usuarioService.create(formData);
+      // Agregar la fecha de registro actual en formato ISO
+      const userData = {
+        ...formData,
+        fecha_registro: new Date().toISOString()
+      };
+      
+      console.log('Enviando datos del usuario:', userData); // Para debugging
+      
+      const response = await usuarioService.create(userData);
       showNotification('Usuario registrado con éxito', 'success');
       onUserRegistered(response.data);
       

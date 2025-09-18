@@ -64,9 +64,12 @@ function ReservationsPage() {
       setSaving(true);
       
       const reservaData = {
-        ...formData,
+        usuario: parseInt(formData.usuario),
+        funcion: parseInt(formData.funcion),
         cantidad_asientos: parseInt(formData.cantidad_asientos)
       };
+      
+      console.log('Enviando datos de reserva:', reservaData);
       
       if (editingReservation) {
         await updateReserva(editingReservation.id, reservaData);
@@ -129,22 +132,41 @@ function ReservationsPage() {
 
   const getFuncionInfo = (funcionId) => {
     const funcion = funciones.find(f => f.id === funcionId);
-    if (!funcion) return 'Función no encontrada';
+    if (!funcion) {
+      return {
+        titulo: 'Función no encontrada',
+        fecha: '-',
+        hora: '-',
+        sala: '-',
+        precio: 0
+      };
+    }
     
     const pelicula = peliculas.find(p => p.id === funcion.pelicula);
     const peliculaTitulo = pelicula ? pelicula.titulo : 'Película no encontrada';
     
-    const fechaObj = new Date(funcion.fecha + 'T' + funcion.hora_inicio);
-    const fechaFormateada = fechaObj.toLocaleDateString('es-ES');
-    const horaFormateada = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    
-    return {
-      titulo: peliculaTitulo,
-      fecha: fechaFormateada,
-      hora: horaFormateada,
-      sala: funcion.sala,
-      precio: funcion.precio
-    };
+    try {
+      const fechaObj = new Date(funcion.fecha + 'T' + funcion.hora_inicio);
+      const fechaFormateada = fechaObj.toLocaleDateString('es-ES');
+      const horaFormateada = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      
+      return {
+        titulo: peliculaTitulo,
+        fecha: fechaFormateada,
+        hora: horaFormateada,
+        sala: funcion.sala || 'Sala no especificada',
+        precio: funcion.precio || 0
+      };
+    } catch (error) {
+      console.error('Error al formatear fecha de función:', error);
+      return {
+        titulo: peliculaTitulo,
+        fecha: funcion.fecha || '-',
+        hora: funcion.hora_inicio || '-',
+        sala: funcion.sala || 'Sala no especificada',
+        precio: funcion.precio || 0
+      };
+    }
   };
 
   const formatDate = (dateString) => {
@@ -158,7 +180,7 @@ function ReservationsPage() {
 
   const calculateTotal = (funcionId, cantidadAsientos) => {
     const funcion = funciones.find(f => f.id === funcionId);
-    if (!funcion) return 0;
+    if (!funcion || !funcion.precio || !cantidadAsientos) return 0;
     return funcion.precio * cantidadAsientos;
   };
 
@@ -236,7 +258,7 @@ function ReservationsPage() {
                         
                         return (
                           <option key={funcion.id} value={funcion.id}>
-                            {peliculaTitulo} - {fechaFormateada} {horaFormateada} - {funcion.sala} - COP ${funcion.precio.toLocaleString()}
+                            {peliculaTitulo} - {fechaFormateada} {horaFormateada} - {funcion.sala} - COP ${funcion.precio?.toLocaleString() || '0'}
                           </option>
                         );
                       })}
@@ -353,7 +375,7 @@ function ReservationsPage() {
                       </div>
                       <div className="detail-item">
                         <span className="detail-label">💰 Total:</span>
-                        <span className="detail-value total">COP ${total.toLocaleString()}</span>
+                        <span className="detail-value total">COP ${(total || 0).toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="reservation-actions">
