@@ -5,13 +5,14 @@ import UserForm from '../components/UserForm';
 import MovieList from '../components/MovieList';
 import ReservationForm from '../components/ReservationForm';
 import Notification from '../components/Notification';
-import { usuarioService, peliculaService, reservaService } from '../services/api';
+import { usuarioService, peliculaService, reservaService, funcionService } from '../services/api';
 import './HomePage.css';
 
 const HomePage = () => {
   // Estado centralizado para toda la aplicación (Principio de Cohesión)
   const [usuarios, setUsuarios] = useState([]);
   const [peliculas, setPeliculas] = useState([]);
+  const [funciones, setFunciones] = useState([]);
   const [reservas, setReservas] = useState([]);
   const [notification, setNotification] = useState({ message: '', type: '', show: false });
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,12 @@ const HomePage = () => {
         console.log('Usuarios response:', usuariosResponse.data);
         const usuariosData = usuariosResponse.data.results || usuariosResponse.data;
         setUsuarios(usuariosData);
+        
+        // Cargar funciones
+        const funcionesResponse = await funcionService.getAll();
+        console.log('Funciones response:', funcionesResponse.data);
+        const funcionesData = funcionesResponse.data.results || funcionesResponse.data;
+        setFunciones(funcionesData);
         
         // Cargar reservas
         const reservasResponse = await reservaService.getAll();
@@ -151,7 +158,7 @@ const HomePage = () => {
             className="section-header"
             onClick={() => toggleSection('users')}
           >
-            <h2>👤 Registro de Usuario</h2>
+            <h2>👤 Registro de Usuarios</h2>
             <span className={`toggle-icon ${expandedSections.users ? 'expanded' : ''}`}>
               ▼
             </span>
@@ -200,6 +207,7 @@ const HomePage = () => {
               <ReservationForm 
                 usuarios={usuarios}
                 peliculas={peliculas}
+                funciones={funciones}
                 onReservationCreated={handleReservationCreated}
                 showNotification={showNotification}
               />
@@ -228,8 +236,11 @@ const HomePage = () => {
                     {reservas.map((reserva) => (
                       <div key={reserva.id} className="reservation-card">
                         <h3>{reserva.usuario}</h3>
-                        <p><strong>Película:</strong> {reserva.pelicula}</p>
-                        <p><strong>Fecha:</strong> {new Date(reserva.fecha_reserva).toLocaleString()}</p>
+                        <p><strong>Película:</strong> {reserva.funcion?.pelicula_titulo || 'No disponible'}</p>
+                        <p><strong>Sala:</strong> {reserva.funcion?.sala || 'No disponible'}</p>
+                        <p><strong>Función:</strong> {reserva.funcion?.fecha_hora ? new Date(reserva.funcion.fecha_hora).toLocaleString() : 'No disponible'}</p>
+                        <p><strong>Asientos:</strong> {reserva.cantidad_asientos}</p>
+                        <p><strong>Fecha Reserva:</strong> {new Date(reserva.fecha_reserva).toLocaleString()}</p>
                       </div>
                     ))}
                   </div>

@@ -1,5 +1,5 @@
 /* App.css - Estilos principales de la aplicación */
-/* Diseño base para el sistema de navegación */
+/* Diseño base para el sistema de navegación y layout global */
 
 * {
   margin: 0;
@@ -7,14 +7,37 @@
   box-sizing: border-box;
 }
 
+/* Selector específico para asegurar color blanco en títulos de sección */
+.user-form h2 {
+  color: #ffffff !important;
+  margin-bottom: 25px;
+  font-weight: 600;
+  font-size: 1.8rem;
+}
+
+.collapsible-section .section-header h2,
+.section-header h2,
+h2.section-title {
+  color: #ffffff !important;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  color: #333;
-  background: #f8f9fa;
+  color: #ffffff;
+  background: #1a1a1a;
+  overflow-x: hidden;
 }
 
 .App {
+  width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -22,13 +45,15 @@ body {
 
 .main-content {
   flex: 1;
-  margin-top: 70px; /* Espacio para la navegación fija */
+  width: 100%;
+  margin-top: 120px; /* Aumentado para evitar superposición */
+  padding: 0;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .main-content {
-    margin-top: 60px;
+    margin-top: 100px;
   }
 }
 
@@ -85,10 +110,39 @@ body {
 .user-form h2,
 .reservation-form h2,
 .movie-list h2 {
-  color: #1a1a1a;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #646cff;
-  padding-bottom: 0.5rem;
+  color: #ffffff;
+  margin: -2rem -2rem 1.5rem -2rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid #d4af37;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de brillo sutil en los títulos */
+.user-form h2::before,
+.reservation-form h2::before,
+.movie-list h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.user-form h2:hover::before,
+.reservation-form h2:hover::before,
+.movie-list h2:hover::before {
+  left: 100%;
 }
 
 .form-group {
@@ -99,52 +153,73 @@ body {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #374151;
+  color: #e0e0e0;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #666666;
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
+  background-color: #2d2d2d;
+  color: #ffffff;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #646cff;
-  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .form-group input:disabled,
 .form-group select:disabled {
-  background-color: #f3f4f6;
+  background-color: #1a1a1a;
+  color: #999999;
   cursor: not-allowed;
 }
 
 /* Botones */
 button {
-  background-color: #646cff;
-  color: white;
+  background-color: #d4af37;
+  color: #1a1a1a;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 button:hover:not(:disabled) {
-  background-color: #535bf2;
+  background-color: #b8941f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
 }
 
 button:disabled {
-  background-color: #9ca3af;
+  background-color: #666666;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Contenedores de formularios */
+.user-form,
+.reservation-form,
+.movie-list {
+  background: rgba(45, 45, 45, 0.9);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1rem;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Lista de películas */
@@ -155,25 +230,26 @@ button:disabled {
 }
 
 .movie-card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: rgba(45, 45, 45, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 6px;
   padding: 1rem;
   text-align: center;
-  transition: shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .movie-card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
 }
 
 .movie-card h3 {
-  color: #1a1a1a;
+  color: #d4af37;
   margin-bottom: 0.5rem;
 }
 
 .movie-card p {
-  color: #6b7280;
+  color: #e0e0e0;
   font-size: 0.875rem;
 }
 
@@ -184,14 +260,16 @@ button:disabled {
   right: 2rem;
   z-index: 1000;
   padding: 1rem 1.5rem;
-  border-radius: 6px;
+  border-radius: 8px;
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-width: 300px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.3s ease-out;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes slideIn {
@@ -206,11 +284,18 @@ button:disabled {
 }
 
 .notification-success {
-  background-color: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-left: 4px solid #d4af37;
 }
 
 .notification-error {
-  background-color: #ef4444;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-left: 4px solid #d4af37;
+}
+
+.notification-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-left: 4px solid #d4af37;
 }
 
 .notification-close {
@@ -219,13 +304,15 @@ button:disabled {
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
   margin-left: 1rem;
   line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .notification-close:hover {
-  background: none;
+  background: rgba(255, 255, 255, 0.2);
   opacity: 0.8;
 }
 
