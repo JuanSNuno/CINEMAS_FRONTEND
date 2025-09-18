@@ -1,42 +1,261 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* App.css - Estilos principales de la aplicación */
+/* Diseño base para el sistema de navegación */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background: #f8f9fa;
 }
 
-@keyframes logo-spin {
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  margin-top: 70px; /* Espacio para la navegación fija */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    margin-top: 60px;
+  }
+}
+
+/* Transiciones suaves para cambios de página */
+.main-content > * {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.section {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.app-footer {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  text-align: center;
+  color: #666;
+}
+
+/* Estilos para formularios */
+.user-form h2,
+.reservation-form h2,
+.movie-list h2 {
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #646cff;
+  padding-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+/* Botones */
+button {
+  background-color: #646cff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: #535bf2;
+}
+
+button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Lista de películas */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.movie-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+  transition: shadow 0.3s ease;
+}
+
+.movie-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.movie-card h3 {
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.movie-card p {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Notificaciones */
+.notification {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
-.card {
-  padding: 2em;
+.notification-success {
+  background-color: #10b981;
 }
 
-.read-the-docs {
-  color: #888;
+.notification-error {
+  background-color: #ef4444;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1rem;
+  line-height: 1;
+}
+
+.notification-close:hover {
+  background: none;
+  opacity: 0.8;
+}
+
+/* Advertencias */
+.warning {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.warning p {
+  color: #92400e;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-sections {
+    grid-template-columns: 1fr;
+  }
+  
+  .app-main {
+    padding: 1rem;
+  }
+  
+  .notification {
+    right: 1rem;
+    left: 1rem;
+    min-width: auto;
+  }
 }
